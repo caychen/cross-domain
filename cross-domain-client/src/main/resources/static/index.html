@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Title</title>
+	<link rel="stylesheet" href="./jasmine/jasmine-core/jasmine.css">
+</head>
+<body>
+<script type="text/javascript" src="/webjars/jquery/3.3.1-1/jquery.js"></script>
+<script type="text/javascript" src="./jasmine/jasmine-core/jasmine.js"></script>
+<script type="text/javascript" src="./jasmine/jasmine-core/jasmine-html.js"></script>
+<script type="text/javascript" src="./jasmine/jasmine-core/boot.js"></script>
+<script type="text/javascript">
+
+	//每一个测试用例的超时时间
+	jasmine.DEFAULT_TIMEOUT_INTERVAL = 1000;
+
+	//请求接口的前缀
+	var base = "http://b.com/test";
+
+	//测试模块：第一个参数为模块名字，用于显示
+	describe('ajax请求跨域', function () {
+		//测试方法：第一个参数为自定义的方法名称，用于显示
+		it('get1请求', function (done) {
+			let result;
+
+			$.when($.ajax({
+				url: base + '/get1'
+			})).then(function(r){
+				result = r;
+			}, function(error){
+				//result = error;
+				console.log(error);
+			});
+
+			setTimeout(function(){
+				expect(result).toEqual({
+					"data": "get1 ok"
+				});
+
+				//校验成功，通知jasmine框架
+				done();
+			}, 100);
+		});
+
+		/*
+		it('jsonp请求', function (done) {
+			var result;
+
+			$.when($.ajax({
+				url: base + '/get1',
+				dataType:'jsonp',
+				jsonp: 'callback'//重写回调函数的名字，默认为callback
+			})).then(function(r){
+				result = r;
+				//console.log(result.data);
+			}, function(error){
+				//result = error;
+				console.log(error);
+			});
+
+			setTimeout(function(){
+				expect(result).toEqual({
+					"data": "get1 ok"
+				});
+
+				//校验成功，通知jasmine框架
+				done();
+			}, 100);
+		});*/
+
+		it('postJson请求', function (done) {
+			let result;
+
+			$.when($.ajax({
+				url: base + '/postJson',
+				type:'post',
+				dataType:'json',
+				data:JSON.stringify({
+					name: 'Cay'
+				}),
+				contentType : "application/json",//使用@RequestBody的时候，必须使用contentType:'application/json'，并把请求参数进行json序列化
+			})).then(function(r){
+				result = r;
+			}, function(error){
+				//result = error;
+				console.log(error);
+			});
+
+			setTimeout(function(){
+				expect(result).toEqual({
+					"data": "postJson: Cay"
+				});
+
+				//校验成功，通知jasmine框架
+				done();
+			}, 100);
+		});
+
+		it('带cookie请求', function (done) {
+			let result;
+
+			$.when($.ajax({
+				url: base + '/getCookie',
+				xhrFields:{
+					withCredentials: true
+				},
+				type:'get',
+			})).then(function(r){
+				result = r;
+			}, function(error){
+				//result = error;
+				console.log(error);
+			});
+
+			setTimeout(function(){
+				expect(result).toEqual({
+					"data": "getCookie: Cay"
+				});
+
+				//校验成功，通知jasmine框架
+				done();
+			}, 100);
+		});
+
+		it('header请求', function (done) {
+			let result;
+
+			$.when($.ajax({
+				url: base + '/getHeader',
+				type:'get',
+				headers:{
+					'x-header1' : 'AAA'
+				},
+				beforeSend: function(xhr){
+					xhr.setRequestHeader('x-header2', 'BBB')
+				}
+			})).then(function(r){
+				result = r;
+			}, function(error){
+				//result = error;
+				console.log(error);
+			});
+
+			setTimeout(function(){
+				expect(result).toEqual({
+					"data": "getHeader: AAA-BBB"
+				});
+
+				//校验成功，通知jasmine框架
+				done();
+			}, 100);
+		});
+	});
+
+</script>
+</body>
+</html>
